@@ -3,11 +3,11 @@ title: 【起始之章】Hexo+Nginx部署网站
 tags: [hexo]
 date: 2024-12-12
 updated: 2024-12-12
-cover: /res/img/post/01-hexo+nginx_deploy_website/17.png
+cover: /res/img/post/01-hexo-nginx-deploy-website/17.png
 top_img: /res/img/site/background.png
 ---
 
-![](/res/img/post/01-hexo+nginx_deploy_website/17.png)
+![](/res/img/post/01-hexo-nginx-deploy-website/17.png)
 
 # 前言
 
@@ -104,7 +104,7 @@ npm install hexo-renderer-pug hexo-renderer-stylus --save
 
 hexo 会自动合并主题中的 `_config.yml` 和 `_config.butterfly.yml` 里的配置，如果存在同名配置，会使用 `_config.butterfly.yml` 的配置，其优先度较高。
 
-![](/res/img/post/01-hexo+nginx_deploy_website/1.png)
+![](/res/img/post/01-hexo-nginx-deploy-website/1.png)
 
 <br>
 
@@ -554,7 +554,7 @@ npx hexo s
 
 删除一条评论
 
-![](/res/img/post/01-hexo+nginx_deploy_website/18_删除评论.png)
+![](/res/img/post/01-hexo-nginx-deploy-website/18_删除评论.png)
 
 
 &nbsp;
@@ -1183,7 +1183,7 @@ nodejs: 👉https://nodejs.org/en
 
 做完这些操作后，就可以新建一个仓库，将整个项目上传上去了
 
-![](/res/img/post/01-hexo+nginx_deploy_website/2.png)
+![](/res/img/post/01-hexo-nginx-deploy-website/2.png)
 
 ```shell
 git add .
@@ -1237,19 +1237,19 @@ PS：这里 `root xxx/public;` 是设置你的项目目录
 
 有些服务器需要手动开启端口防火墙，以我这里为例
 
-![](/res/img/post/01-hexo+nginx_deploy_website/3.png)
+![](/res/img/post/01-hexo-nginx-deploy-website/3.png)
 
-![](/res/img/post/01-hexo+nginx_deploy_website/4.png)
+![](/res/img/post/01-hexo-nginx-deploy-website/4.png)
 
-![](/res/img/post/01-hexo+nginx_deploy_website/5.png)
+![](/res/img/post/01-hexo-nginx-deploy-website/5.png)
 
-![](/res/img/post/01-hexo+nginx_deploy_website/6.png)
+![](/res/img/post/01-hexo-nginx-deploy-website/6.png)
 
-![](/res/img/post/01-hexo+nginx_deploy_website/7.png)
+![](/res/img/post/01-hexo-nginx-deploy-website/7.png)
 
 通过公网 IP 访问进行测试
 
-![](/res/img/post/01-hexo+nginx_deploy_website/8.png)
+![](/res/img/post/01-hexo-nginx-deploy-website/8.png)
 
 <br>
 <br>
@@ -1260,23 +1260,23 @@ PS：这里 `root xxx/public;` 是设置你的项目目录
 
 - 需要先购买一个域名
 
-![](/res/img/post/01-hexo+nginx_deploy_website/9.png)
+![](/res/img/post/01-hexo-nginx-deploy-website/9.png)
 
-![](/res/img/post/01-hexo+nginx_deploy_website/10.png)
+![](/res/img/post/01-hexo-nginx-deploy-website/10.png)
 
-![](/res/img/post/01-hexo+nginx_deploy_website/11.png)
+![](/res/img/post/01-hexo-nginx-deploy-website/11.png)
 
 - 刚购买好需要等待审核，这里以我之前买的域名为例，添加解析
 
-![](/res/img/post/01-hexo+nginx_deploy_website/12.png)
+![](/res/img/post/01-hexo-nginx-deploy-website/12.png)
 
-![](/res/img/post/01-hexo+nginx_deploy_website/13.png)
+![](/res/img/post/01-hexo-nginx-deploy-website/13.png)
 
-![](/res/img/post/01-hexo+nginx_deploy_website/14.png)
+![](/res/img/post/01-hexo-nginx-deploy-website/14.png)
 
-![](/res/img/post/01-hexo+nginx_deploy_website/15.png)
+![](/res/img/post/01-hexo-nginx-deploy-website/15.png)
 
-![](/res/img/post/01-hexo+nginx_deploy_website/16.png)
+![](/res/img/post/01-hexo-nginx-deploy-website/16.png)
 
 <br>
 <br>
@@ -1285,13 +1285,13 @@ PS：这里 `root xxx/public;` 是设置你的项目目录
 
 购买证书服务，验证通过后一般会给u这两个格式的文件
 
-![](/res/img/post/01-hexo+nginx_deploy_website/19.png)
+![](/res/img/post/01-hexo-nginx-deploy-website/19.png)
 
-![](/res/img/post/01-hexo+nginx_deploy_website/20.png)
+![](/res/img/post/01-hexo-nginx-deploy-website/20.png)
 
 补充：
 
-![](/res/img/post/01-hexo+nginx_deploy_website/21.png)
+![](/res/img/post/01-hexo-nginx-deploy-website/21.png)
 
 最后还需要打开 `nginx.conf` 在 # HTTPS 下的 location 添加网页目录位置
 
@@ -1309,7 +1309,7 @@ server {
 
 - 最终效果
 
-![](/res/img/post/01-hexo+nginx_deploy_website/17.png)
+![](/res/img/post/01-hexo-nginx-deploy-website/17.png)
 
 <br>
 <br>
