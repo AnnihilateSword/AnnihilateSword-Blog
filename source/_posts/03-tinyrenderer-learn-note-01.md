@@ -3,11 +3,11 @@ title: TinyRenderer 学习笔记 (上)
 tags: [计算机图形学, Software Renderer]
 date: 2025-02-26
 updated: 2025-02-26
-cover: /res/img/post/03-tinyrenderer-learn-note-01/3-3-1.jpg
+cover: /res/img/post/03-tinyrenderer-learn-note-01/3-4-1.jpg
 top_img: /res/img/site/background.png
 ---
 
-![](/res/img/post/03-tinyrenderer-learn-note-01/3-3-1.jpg)
+![](/res/img/post/03-tinyrenderer-learn-note-01/3-4-1.jpg)
 
 <br>
 
@@ -992,6 +992,280 @@ int main(int argc, char** argv)
 <br>
 <br>
 
+## Okay, we just interpolated the z-values. What else can we do?
+
+接下来我们给我们的非洲老哥加上纹理！
+
+为了添加纹理颜色，我们首先需要读入纹理坐标，采样纹理颜色。
+
+所以我们首先需要修改 `model.h` 以及 `model.cpp`：
+
+`model.h`：此处做出的修改如下：
+
+1. 每个小三角形面片的数据类型为 `std::vector<Vec3i>`，每个三角形由三个 `Vec3i` 组成，分别代表三个顶点，每个顶点存储三个整数值，分别对应 顶点索引 / 纹理坐标索引 / 法线向量索引;
+
+2. 增加纹理坐标、法线向量、漫反射贴图这些成员变量，并对应增加一些成员函数；
+
+```cpp
+#ifndef __MODEL_H__
+#define __MODEL_H__
+
+#include <vector>
+#include "geometry.h"
+#include "tgaimage.h"
+
+class Model {
+private:
+	std::vector<Vec3f> verts_;
+	std::vector<std::vector<Vec3i> > faces_;
+	std::vector<Vec3f> norms_;
+	std::vector<Vec2f> uvs_;
+
+	TGAImage diffuseMap_;
+	void load_texture(std::string filename, const char* suffix, TGAImage& img);
+public:
+	Model(const char *filename);
+	~Model();
+	int nverts();
+	int nfaces();
+	Vec3f vert(int i);
+	std::vector<int> face(int idx);
+	Vec2i uv(int iface, int nvert);
+	TGAColor diffuse(Vec2i uv);
+};
+
+#endif //__MODEL_H__
+
+```
+
+`model.cpp`：针对我们对 .h 文件做出的修改，对 .cpp 文件的实现也做出修改。
+
+```cpp
+#include <iostream>
+#include <string>
+#include <fstream>
+#include <sstream>
+#include <vector>
+#include "model.h"
+
+Model::Model(const char *filename) : verts_(), faces_() {
+    std::ifstream in;
+    in.open (filename, std::ifstream::in);
+    if (in.fail()) return;
+    std::string line;
+    while (!in.eof()) {
+        std::getline(in, line);
+        std::istringstream iss(line.c_str());
+        char trash;
+        if (!line.compare(0, 2, "v ")) {
+            iss >> trash;
+            Vec3f v;
+            for (int i=0;i<3;i++) iss >> v[i];
+            verts_.push_back(v);
+        }
+        else if (!line.compare(0, 3, "vt ")) {
+            iss >> trash >> trash;
+            Vec2f uv;
+            for (int i=0;i<2;i++) iss >> uv[i];
+            uvs_.push_back(uv);
+        }
+        else if (!line.compare(0, 3, "vn ")) {
+            iss >> trash >> trash;
+            Vec3f normal;
+            for (int i=0;i<3;i++) iss >> normal[i];
+            norms_.push_back(normal);
+        }
+        else if (!line.compare(0, 2, "f ")) {
+            std::vector<Vec3i> f;
+            Vec3i tmp;
+            iss >> trash;
+            while (iss >> tmp[0] >> trash >> tmp[1] >> trash >> tmp[2]) {
+                // in wavefront obj all indices start at 1, not zero
+                for (int i = 0; i < 3; i++) tmp[i]--;
+                f.push_back(tmp);
+            }
+            faces_.push_back(f);
+        }
+    }
+    std::cerr << "# v# " << verts_.size() << " f# "  << faces_.size() << " vt# " << uvs_.size() << " vn# " << norms_.size() << std::endl;
+    // 加载纹理
+    load_texture(filename, "_diffuse.tga", diffuseMap_);
+}
+
+Model::~Model() {
+}
+
+int Model::nverts() {
+    return (int)verts_.size();
+}
+
+int Model::nfaces() {
+    return (int)faces_.size();
+}
+
+std::vector<int> Model::face(int idx) {
+    std::vector<int> face;
+    std::vector<Vec3i> tmp = faces_[idx];
+    for (int i = 0; i < tmp.size(); i++)
+        face.push_back(tmp[i][0]);
+    return face;
+}
+
+Vec3f Model::vert(int i) {
+    return verts_[i];
+}
+
+void Model::load_texture(std::string filename, const char* suffix, TGAImage& img)
+{
+    std::string texfile(filename);
+    size_t dot = texfile.find_last_of(".");
+    if (dot != std::string::npos) {
+        texfile = texfile.substr(0, dot) + std::string(suffix);
+        std::cerr << "texture file " << texfile << " loading " << (img.read_tga_file(texfile.c_str()) ? "ok" : "failed") << std::endl;
+        img.flip_vertically();
+    }
+}
+
+TGAColor Model::diffuse(Vec2i uv)
+{
+    return diffuseMap_.get(uv.x, uv.y);
+}
+
+Vec2i Model::uv(int iface, int nvert)
+{
+    int idx = faces_[iface][nvert][1];
+    return Vec2i(uvs_[idx].x * diffuseMap_.get_width(), uvs_[idx].y * diffuseMap_.get_height());
+}
+
+```
+
+接下来我们需要在 `main.cpp` 中做出如下修改：
+
+triangle 函数：
+
+```cpp
+void triangle(Vec3f *pts, Vec2i* uvs, float *zbuffer, TGAImage &image, float intensity)
+{
+    Vec2f bboxmin( std::numeric_limits<float>::max(),  std::numeric_limits<float>::max());
+    Vec2f bboxmax(-std::numeric_limits<float>::max(), -std::numeric_limits<float>::max());
+    // clamp 用于限制包围盒在图像范围内
+    // clamp：表示图像的最大 x 和 y 坐标 (从 0 开始，所以需要减 1)。
+    Vec2f clamp(image.get_width()-1, image.get_height()-1);
+    for (int i=0; i<3; i++)
+    {
+        for (int j=0; j<2; j++)
+        {
+            // 计算三角形的包围盒
+            // 保证不超出图像的左边界和上边界
+            bboxmin[j] = std::max(0.f,      std::min(bboxmin[j], pts[i][j]));
+            // 保证不超出图像的右边界和下边界
+            bboxmax[j] = std::min(clamp[j], std::max(bboxmax[j], pts[i][j]));
+        }
+    }
+
+    Vec3f P;
+    Vec2i uvP;
+
+    // 遍历一个二维包围盒（Bounding Box）中的每一个像素点，并判断这些像素点是否位于给定的三角形内。
+    // 如果像素点在三角形内，则计算其深度值（z 值），并进行深度测试（Z-Buffer 测试），
+    // 最后更新帧缓冲区和深度缓冲区。
+
+    // 遍历边框中的每一个像素点
+    for (P.x=bboxmin.x; P.x<=bboxmax.x; P.x++)
+    {
+        for (P.y=bboxmin.y; P.y<=bboxmax.y; P.y++)
+        {
+            // 获取质心坐标
+            Vec3f bc_screen  = barycentric(pts[0], pts[1], pts[2], P);
+            // 质心坐标有一个负值，说明点在三角形外
+            if (bc_screen.x<0 || bc_screen.y<0 || bc_screen.z<0) continue;
+            P.z = 0;
+            //计算 zbuffer，并且每个顶点的 z 值乘上对应的质心坐标分量
+            // P.z = u.x*pts[0][2] + u.y*pts[1][2] + u.z*pts[2][2];
+            // 其中 pts[0][2] 即 pts[0].z
+            // 根据质心坐标 (u,v,w) 和三角形顶点的深度值 pts[i][2]，插值计算 P 的深度值：
+            for (int i=0; i<3; i++)
+                P.z += pts[i][2]*bc_screen[i];
+
+            // 获取该像素点的 uv 坐标
+            uvP = uvs[0] * bc_screen.x + uvs[1] * bc_screen.y + uvs[2] * bc_screen.z;
+
+            // 深度测试
+            if (zbuffer[int(P.x+P.y*width)] < P.z)
+            {
+                zbuffer[int(P.x+P.y*width)] = P.z;
+                TGAColor texColor = model->diffuse(uvP);
+                image.set(P.x, P.y, texColor * intensity);
+            }
+        }
+    }
+}
+```
+
+main 函数：
+
+```cpp
+int main(int argc, char** argv)
+{
+    if (2==argc)
+    {
+        model = new Model(argv[1]);
+    }
+    else
+    {
+        model = new Model("../../res/obj/african_head/african_head.obj");
+    }
+
+    float *zbuffer = new float[width*height];
+    for (int i=width*height; i--; zbuffer[i] = -std::numeric_limits<float>::max());
+
+    TGAImage image(width, height, TGAImage::RGB);
+
+    Vec3f light_dir(0,0,-1); // define light_dir
+
+    for (int i=0; i<model->nfaces(); i++)
+    {
+        std::vector<int> face = model->face(i);
+        Vec3f world_coords[3];
+        for (int j=0; j<3; j++)
+        {
+            Vec3f v = model->vert(face[j]);
+            world_coords[j]  = v;
+        }
+        Vec3f A = world_coords[2] - world_coords[0];
+        Vec3f B = world_coords[1] - world_coords[0];
+        // 叉积求面的法向量
+        Vec3f n = Vec3f(A.y*B.z - A.z*B.y, A.z*B.x - A.x*B.z, A.x*B.y - A.y*B.x);
+
+        n.normalize();
+        // 计算光线强度
+        float intensity = n*light_dir;
+        if (intensity>0)
+        {
+            Vec3f pts[3];
+            for (int i=0; i<3; i++) pts[i] = world2screen(model->vert(face[i]));
+
+            // 获取 uv
+            Vec2i uv[3];
+            for (int j = 0; j < 3; j++) uv[j] = model->uv(i, j);
+            triangle(pts, uv, zbuffer, image, intensity);
+        }
+    }
+
+    image.flip_vertically(); // i want to have the origin at the left bottom corner of the image
+    image.write_tga_file("output.tga");
+    delete model;
+    return 0;
+}
+```
+
+结果如下：
+
+![](/res/img/post/03-tinyrenderer-learn-note-01/3-4-1.jpg)
+
+<br>
+<br>
+
 # 参考
 
 [1] 👉[Github tinyrenderer wiki (原作者 wiki)](https://github.com/ssloy/tinyrenderer/wiki)
@@ -1001,6 +1275,7 @@ int main(int argc, char** argv)
 [5] 👉[从零构建光栅器，tinyrenderer笔记（上）](https://zhuanlan.zhihu.com/p/399056546)
 [6] 👉[计算机图形学补充1：重心坐标(barycentric coordinates)详解及其作用](https://zhuanlan.zhihu.com/p/144360079)
 [7] 👉[Lesson 3: Hidden faces removal (z buffer)](https://github.com/ssloy/tinyrenderer/wiki/Lesson-3:-Hidden-faces-removal-(z-buffer))
+[8] 👉[TinyRenderer从零实现（四）：lesson 3 z-buffer实现与纹理映射](https://zhuanlan.zhihu.com/p/523503467)
 
 <br>
 
