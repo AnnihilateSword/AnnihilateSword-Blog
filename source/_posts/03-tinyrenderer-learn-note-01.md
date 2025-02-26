@@ -17,7 +17,7 @@ top_img: /res/img/site/background.png
 
 👉https://github.com/AnnihilateSword/TinyRenderer
 
-其中添加了更为详细的注释，能帮助更快理解掌握知识！
+其中添加了更为详细的注释，帮助更快理解掌握知识！
 
 <br>
 <br>
@@ -122,7 +122,7 @@ line(80, 40, 13, 20, image, red);
 
 ## 第三次尝试
 
-我们通过交换点来修复缺失的红线使 x<sub>0</sub> 总是小于 x1
+我们通过交换点来修复缺失的红线，使 x<sub>0</sub> 总是小于 x1
 
 > 因为如果 x<sub>0</sub> < x<sub>1</sub> 就不会进入 for 循环的逻辑
 
@@ -167,7 +167,7 @@ Holy cow! 天哪！
 
 ## 第四次尝试 (直接看第五部分尝试)
 
-> 可以先看第五部分尝试，这部分算法很少使用，会使用第五部分不用 float 的算法
+> 可以先看第五部分尝试，这部分算法很少使用，并且第五部分的算法不用 float 类型
 
 ```shell
 %   cumulative   self              self     total 
@@ -680,16 +680,19 @@ void rasterize(Vec2i p0, Vec2i p1, TGAImage &image, TGAColor color, int ybuffer[
 
 ### 质心坐标
 
-直接上代码，这些注释我相信足够你看懂了：
+计算质心坐标的实现：
 
 ```cpp
-/** 计算质心坐标 */
+/**
+ * @brief 计算质心坐标
+ * @return 如果返回的坐标 (u,v,w) 满足 u,v,w >0，则点 P 在三角形内部
+ */
 Vec3f barycentric(Vec3f A, Vec3f B, Vec3f C, Vec3f P)
 {
     Vec3f s[2];
     // 计算 [AC,AB,PA] 的 x 和 y 分量
-    // s[0] 存储 y 分量的 AC,AB,PA
-    // s[1] 存储 x 分量的 AC,AB,PA
+    // s[0] 存储 x 分量的 AC,AB,PA
+    // s[1] 存储 y 分量的 AC,AB,PA
     for (int i=2; i--; )
     {
         s[i][0] = C[i]-A[i]; // 向量 AC 的分量
@@ -697,15 +700,15 @@ Vec3f barycentric(Vec3f A, Vec3f B, Vec3f C, Vec3f P)
         s[i][2] = A[i]-P[i]; // 向量 PA 的分量（注意负号）
     }
 
-    // [u,v,1] 和 [AC,AB,PA] 对应的 x 和 y 向量都垂直，所以叉乘
+    // 这里 cross(s[0], s[1]) 相当于 AC 叉乘 AB，结果是 u 垂直于这两个向量
+    // 它的 z 分量 u.z 表示三角形 ABC 所在平面的法向量的 z 分量
+    // 叉积 |axb| = |a||b|sin(α)  值为 0 时角度为 0，即 ABC 三点共线
     // u.x = s[0].y · s[1].z - s[0].z · s[1].y
     // u.y = s[0].z · s[1].x - s[0].x · s[1].z
-    // u.z = s[0].x · s[1].y - s[O].y · s[1].x
-    // 因为 s[0].z 分量为 0，所以 u.x == u.y == 0，所以下面是判断 u[2]
+    // u.z = s[0].x · s[1].y - s[0].y · s[1].x
     Vec3f u = cross(s[0], s[1]);
 
-    // 三点共线时，会导致 u[2] 为0，此时返回 (-1,1,1)
-    // 叉积 |axb| = |a||b|sin(α)  值为 0 时角度为 0，即三点共线
+    // 三点共线时，会导致 u[2] 为 0，此时返回 (-1,1,1)
     // 判断是否大于 0.01
     if (std::abs(u[2])>1e-2)
         //若 1-u-v，u，v全为大于 0 的数，表示点在三角形内部
@@ -757,6 +760,10 @@ void triangle(Vec3f *pts, float *zbuffer, TGAImage &image, TGAColor color)
 
     Vec3f P;
 
+    // 遍历一个二维包围盒（Bounding Box）中的每一个像素点，并判断这些像素点是否位于给定的三角形内。
+    // 如果像素点在三角形内，则计算其深度值（z 值），并进行深度测试（Z-Buffer 测试），
+    // 最后更新帧缓冲区和深度缓冲区。
+
     // 遍历边框中的每一个像素点
     for (P.x=bboxmin.x; P.x<=bboxmax.x; P.x++)
     {
@@ -770,10 +777,12 @@ void triangle(Vec3f *pts, float *zbuffer, TGAImage &image, TGAColor color)
             //计算 zbuffer，并且每个顶点的 z 值乘上对应的质心坐标分量
             // P.z = u.x*pts[0][2] + u.y*pts[1][2] + u.z*pts[2][2];
             // 其中 pts[0][2] 即 pts[0].z
-            for (int i=0; i<3; i++) P.z += pts[i][2]*bc_screen[i];
+            // 根据质心坐标 (u,v,w) 和三角形顶点的深度值 pts[i][2]，插值计算 P 的深度值：
+            for (int i=0; i<3; i++)
+                P.z += pts[i][2]*bc_screen[i];
 
             // 深度测试
-            if (zbuffer[int(P.x+P.y*width)]<P.z)
+            if (zbuffer[int(P.x+P.y*width)] < P.z)
             {
                 zbuffer[int(P.x+P.y*width)] = P.z;
                 image.set(P.x, P.y, color);
