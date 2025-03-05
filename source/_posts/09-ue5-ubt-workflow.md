@@ -119,7 +119,7 @@ Build 完之后，我们打开 UnrealBuildTool 项目对应的属性，填入需
 -Target="GoodGameEditor Win64 Development -Project=\"C:\Dev\UE\SourceCode\Project\UE5.5.3\GoodGame\GoodGame.uproject\"" -Target="ShaderCompileWorker Win64 Development -Project=\"C:\Dev\UE\SourceCode\Project\UE5.5.3\GoodGame\GoodGame.uproject\" -Quiet" -WaitMutex -FromMsBuild -architecture=x64
 ```
 
-然后我们可以点击上方运行正式开始调试，观察其执行过程/
+然后我们可以点击上方运行正式开始调试，观察其执行过程。
 
 <br>
 <br>
