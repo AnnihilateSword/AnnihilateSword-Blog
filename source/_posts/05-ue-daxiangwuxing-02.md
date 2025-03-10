@@ -1824,7 +1824,7 @@ AActor* const Actor = NewObject<AActor>(
 );
 ```
 
-**请注意，第一个参数为 `Outer`，即负责序列化和反序列化的对象。** 从这里可以看出 `Actor` 由当前关卡（如果没有手动指定的话）负责存储信息。这里就会调用以 `constFObjectInitializer&` 为参数的构造函数，如果读者书写了很多 `Actor` 的代码，应该能够回忆起，正是在这个函数里面，我们通过 `CreateDefaultSubobject` 等函数构造出了默认的组件。相应的，组件的构造函数也在此时被调用。
+**请注意，第一个参数为 `Outer`，即负责序列化和反序列化的对象。** 从这里可以看出 `Actor` 由当前关卡（如果没有手动指定的话）负责存储信息。这里就会调用以 `const FObjectInitializer&` 为参数的构造函数，如果读者书写了很多 `Actor` 的代码，应该能够回忆起，正是在这个函数里面，我们通过 `CreateDefaultSubobject` 等函数构造出了默认的组件。相应的，组件的构造函数也在此时被调用。
 
 <br>
 
@@ -1849,6 +1849,7 @@ AActor* const Actor = NewObject<AActor>(
 	 > i. 调用 `ExecuteConstruction` 函数。如果当前 `Actor` 继承自蓝图 `Actor` 类，此时会拉出所有的蓝图父类串成一串，然后从上往下调用蓝图构造函数（此时顺便也会把 `Timeline` 组件生成出来）。最后调用用户在蓝图定义的构造函数脚本。也就是说，在蓝图中书写的构造函数实际上不是在构造阶段被调用！
 
 	 > ii. 调用虚函数 `OnConstruction`，通知 C++ 层，当前脚本构造已经完成。开发者可以重载该函数，介入这一过程。
+   
    g. 调用 `PostActorConstruction` 函数，该函数主要处理了组件的初始化过程。蓝图也有可能创建自己的组件，因此直到这时才获得了所有 `Actor` 已经被创建但是还没有初始化的组件，组件的初始化需要放到这里进行。
      > i. 调用 `PreInitializeComponents` 函数。对于 `Actor` 来说，这里只处理一件事情：如果当前 `Actor` 需要自动获取输入，则试图获取当前 `PlayerController`，然后启用输入；如果当前 `PlayerController` 不存在，则调用当前 `Level` 的 `RegisterActorForAutoReceiveInput` 以启用输入。该函数可以被重载以实现自己的逻辑。
 	 
