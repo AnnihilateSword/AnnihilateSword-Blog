@@ -18,9 +18,9 @@ top_img: /res/img/site/background.png
 _**注意：本篇文章使用的源码版本是 UE5.5.3**_
 
 >细节比较多，后续会继续更新补充本篇文章。
->本文参考了许多技术文章 (见参考)，有些文章参考由于各种原因不方便列出
+>本文参考了许多技术文章 (见参考)，有些参考由于各种原因不方便列出
 >下面是结合个人实操的 UE5 中 Actor 同步的探究记录
->当然这只是 Actor 同步，后面还有 ReplicationGraph 以及 UE5 新出的 Iris 哈哈，挺有意思的
+>当然这只是 Actor 同步，后面还有 ReplicationGraph 以及 UE5 新出的 Iris
 
 下面先给出一些总结，再开始探究细节，好有个思路又或方便回忆。
 
@@ -35,6 +35,14 @@ UE 是被动式同步方式，这也导致了网络同步时的性能消耗：
 - **属性对比阶段**：针对一个 Actor 或 Component，引擎同样也是不能提前知道这个 Actor 有哪些属性改变，同样得遍历所有属性去做对比才知道是否发生了改变，发生了改变才需要去同步。当然这里说的是 PushModel 关闭的情况，即使提供了 PushModel 功能，但是引擎并没有将属性全部改成支持 PushModel 的情况
 - **同步 Component 阶段**：一个 Actor 的 Components，引擎同样不知道哪些 Component 在这一帧发生了属性变化，得遍历所有的可同步 Component，每一个 Component 都得走一遍属性对比过程
 - **CheckCloseChannel 阶段**：在同步的最后，引擎得遍历此连接上的所有 ActorChannel，去根据 CloseFrameNumber 来决定当前帧这个 Actor 是否需要 CloseChannel，从而在客户端去销毁这个 Actor。同样引擎是不知道当前帧哪些 Actor 因为失去了相关性而去 CloseChannel，它得遍历所有的 ActorInfo 去检查
+
+![](/res/img/post/12_ue5_5_net_sync_explore_actor_replicate/0-1.png)
+
+![](/res/img/post/12_ue5_5_net_sync_explore_actor_replicate/0-2.png)
+
+>动态生成的 Actor 才会因为超出网络同步剔除距离被干掉。
+
+<br>
 
 上述四点充分体现了 UE 的被动同步机制，这对同步性能产生了显著影响。当然，引擎自身也引入了一些特性来缓解这些问题：
 
@@ -141,7 +149,7 @@ _**ServerReplicateActors**_
 
 ![](/res/img/post/12_ue5_5_net_sync_explore_actor_replicate/4-4.png)
 
-重点记住上面的三个阶段能让整体的同步流程更加清晰。
+重点记住上面的四个阶段能让整体的同步流程更加清晰。
 
 <br>
 
@@ -492,7 +500,9 @@ _**因此这里是存在一个优化点的，因为序列化 PathName 会很大�
 
 ReplicateProperties 是在 FObjectReplicator 中进行的，每一个同步的 UObject，都对应着一个 FObjectReplicator 对象，这个对象负责了属性的对比，同步属性的提取，RepState的维护，丢包的处理，属性同步可靠的处理等等。_**属性同步的逻辑就是在 FObjectReplicator 中进行的，是一个非常关键、重要的角色类。**_
 
->由于 FObjectReplicator 和同步的状态相关，因此，一个 UObject 在每个需要同步这个 UObject 的连接上都会创建一个 FObjectReplicator 对象。
+>由于 FObjectReplicator 和同步的状态相关。
+>因此，每个同步的 UObject 至少有一个 FObjectReplicator。
+>如果多个连接需要同步同一个 UObject，每个连接都会有自己的 FObjectReplicator。
 
 下面列举了 FObjectReplicator 的几个重要的属性和方法：
 
@@ -542,7 +552,7 @@ TMap< UObject*, TSharedRef< FObjectReplicator > > ReplicationMap;
 
 可以看到在创建 FObjectReplicator 的过程中，连续创建出了多个关键的类型：FReplayout，FRepChangedPropertyTracker，FRepState， FSendingRepState, FReceivingRepState 等，后续会针对这几个类型讲解。
 
-创建完 FObjectReplicator 后，立马调用了 _**FObjectReplicator::StartReplicating**_ 函数，在这个函数中创建了一个重要的对象：_**FReplicationChangelistMgr**_，这个对象主要做属性对比的功能，下面承接着看看这个对象的创建过程
+创建完 FObjectReplicator 后，立马调用了 _**FObjectReplicator::StartReplicating**_ 函数，在这个函数中创建了一个重要的对象：_**FReplicationChangelistMgr**_，这个对象主要做属性对比的功能。
 
 ![](/res/img/post/12_ue5_5_net_sync_explore_actor_replicate/4-31.png)
 
@@ -679,6 +689,19 @@ _**接下来再看 ReplicateProperties**_，从 FObjectReplicator 开始，这�
 
 
 >这里仍然是 UE 被动式同步逻辑的体现，引擎无法知道哪些 Component 的属性发生了变化，而是需要一个个 Component 去遍历，去检查属性有没有变化，走全所有的同步逻辑才能最终发现 Component 需要同步
+
+<br>
+<br>
+<br>
+<br>
+
+# 参考
+
+[1] ✨[Networking and Multiplayer (UE官方文档)](https://dev.epicgames.com/documentation/en-us/unreal-engine/networking-and-multiplayer-in-unreal-engine)
+[2] ✨[《Exploring in UE4》网络同步原理深入（上）[原理分析] (Jerish)](https://zhuanlan.zhihu.com/p/34723199)
+[3] ✨[UE4网络同步-基础流程 (南山搬砖道人)](https://zhuanlan.zhihu.com/p/532800522)
+[4] ✨[UE4网络同步-RPC流程详解 (南山搬砖道人)](https://zhuanlan.zhihu.com/p/533738684)
+[5] ✨[UE5 网络同步性能热点分析（NetDriver&ReplicationGraph）(嘉哥😁)](https://zhuanlan.zhihu.com/p/23120927574)
 
 <br>
 <br>
