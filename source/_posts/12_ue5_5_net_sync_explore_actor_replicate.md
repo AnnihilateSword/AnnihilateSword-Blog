@@ -44,6 +44,21 @@ UE 是被动式同步方式，这也导致了网络同步时的性能消耗：
 
 <br>
 
+✨下面分享一次试验🔥：
+
+![](/res/img/post/12_ue5_5_net_sync_explore_actor_replicate/0-3.png)
+
+![](/res/img/post/12_ue5_5_net_sync_explore_actor_replicate/0-4.png)
+
+![](/res/img/post/12_ue5_5_net_sync_explore_actor_replicate/0-5.gif)
+
+![](/res/img/post/12_ue5_5_net_sync_explore_actor_replicate/0-6.png)
+
+![](/res/img/post/12_ue5_5_net_sync_explore_actor_replicate/0-7.png)
+
+<br>
+<br>
+
 上述四点充分体现了 UE 的被动同步机制，这对同步性能产生了显著影响。当然，引擎自身也引入了一些特性来缓解这些问题：
 
 - **ReplicationGraph**：减少了 GatherActor 阶段需要处理的 Actor 数量。
