@@ -2,9 +2,13 @@
   class_desc: 好友
   link_list:
     - name: 都哥
-      link: https://ahucd.cn/
-      avatar: https://ahucd.cn/img/avatar.png
+      link: http://ahucd.cn
+      avatar: http://ahucd.cn/img/avatar.png
       descr: 天剑行风
+    - name: 萝北 (涛哥)
+      link: http://tobenot.top
+      avatar: http://tobenot.top/img/favicon.webp
+      descr: tobenot
 
 - class_name: 网站
   class_desc: 值得推荐的网站
