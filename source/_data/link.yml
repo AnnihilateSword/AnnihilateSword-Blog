@@ -1,16 +1,24 @@
 - class_name: 友情链接
-  class_desc: 好友
+  class_desc: 朋友
   link_list:
-    - name: 都哥
+    - name: 天剑行风
       link: http://ahucd.cn
       avatar: http://ahucd.cn/img/avatar.png
-      descr: 天剑行风
-    - name: 萝北 (涛哥)
+      descr: 都哥 (虚幻专家，仿真大师)
+    - name: 萝北 - tobenot
       link: http://tobenot.top
       avatar: http://tobenot.top/img/favicon.webp
-      descr: tobenot
+      descr: 涛哥 (独立游戏开发大师，AI大师)
 
-- class_name: 网站
+- class_name: 单向友链
+  class_desc: 
+  link_list:
+    - name: 瞬光寂暗N
+      link: https://dtysky.moe/
+      avatar: /res/img/site/else/dtysky.webp
+      descr: 一个行者的轨迹
+
+- class_name: 常逛网站
   class_desc: 值得推荐的网站
   link_list:
     - name: Youtube
@@ -19,5 +27,34 @@
       descr: 视频网站
     - name: Bilibili
       link: https://www.bilibili.com/
-      avatar: /res/img/site/bilibili.svg
+      avatar: /res/img/site/bilibili.ico
       descr: 视频网站
+    - name: 知乎
+      link: https://www.zhihu.com/
+      avatar: /res/img/site/zhihu.ico
+      descr: 质量文章
+    - name: reddit
+      link: https://www.reddit.com/
+      avatar: /res/img/site/reddit.webp
+      descr: 外网知乎
+    - name: itch
+      link: https://itch.io/
+      avatar: /res/img/site/itch.svg
+      descr: 游戏社区
+
+- class_name: 工具
+  class_desc: 有帮助
+  link_list:
+    - name: doxygen
+      link: https://www.doxygen.nl/
+      avatar: /res/img/site/doxygen.ico
+      descr: 代码 API 文档生成
+    - name: Excalidraw
+      link: https://excalidraw.com/
+      avatar: /res/img/site/excalidraw.png
+      descr: 在线白板
+    - name: Processon
+      link: https://www.processon.com/
+      avatar: /res/img/site/Processon.ico
+      descr: 在线思维导图
+    
