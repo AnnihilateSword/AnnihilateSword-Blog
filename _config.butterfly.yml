@@ -273,7 +273,7 @@ footer:
     since: 2024
   custom_text: annihilatesword.com 版权所有
   # Copyright of theme and framework
-  copyright: true
+  copyright: false
 
 # --------------------------------------
 # Aside Settings

@@ -1378,6 +1378,22 @@ inject:
 
 👉https://github.com/stevenjoezhang/live2d-widget
 
+<br>
+
+## Copyright 关闭
+
+```yml
+footer:
+  owner:
+    enable: true
+    since: 2024
+  custom_text: annihilatesword.com 版权所有
+  # Copyright of theme and framework
+  copyright: false
+```
+
+> 也可以修改 \themes\butterfly\layout\includes\footer.pug 文件
+
 &nbsp;
 &nbsp;
 
