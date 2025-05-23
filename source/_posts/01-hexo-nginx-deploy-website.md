@@ -1,5 +1,5 @@
 ---
-title: 【起始之章】Hexo+Nginx部署网站
+title: 【起始之章】部署网站
 tags: [hexo]
 date: 2024-12-12
 updated: 2024-12-12

@@ -13,7 +13,7 @@ top_img: /res/img/site/background.png
 
 # 前言
 
-> 独乐乐不如众乐乐。
+>  我内心是愿意支持正版的😁，独乐乐不如众乐乐。
 
 这边上传了一份该版本安装包到百度网盘供大家学习：✨https://pan.baidu.com/s/1UN4-e8xkc5wpbCOPB53NPg?pwd=2025
 
