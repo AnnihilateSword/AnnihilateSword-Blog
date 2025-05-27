@@ -1,5 +1,5 @@
 ---
-title: 【起始之章】部署网站
+title: 【起始之章】主页搭建
 tags: [hexo]
 date: 2024-12-12
 updated: 2024-12-12
@@ -1283,7 +1283,7 @@ PS：这里 `root xxx/public;` 是设置你的项目目录
 
 # 五、SSL证书
 
-购买证书服务，验证通过后一般会给u这两个格式的文件
+购买证书服务，验证通过后一般会给这两个格式的文件
 
 ![](/res/img/post/01-hexo-nginx-deploy-website/19.png)
 
@@ -1293,19 +1293,7 @@ PS：这里 `root xxx/public;` 是设置你的项目目录
 
 ![](/res/img/post/01-hexo-nginx-deploy-website/21.png)
 
-最后还需要打开 `nginx.conf` 在 # HTTPS 下的 location 添加网页目录位置
-
-```txt
-server {
-    listen 80;
-    server_name 域名/IP;
-
-    location / {
-        root xxx/public;
-        index index.html index.htm;
-    }
-}
-```
+**443 HTTPS 的默认端口防火墙也要打开**
 
 - 最终效果
 
