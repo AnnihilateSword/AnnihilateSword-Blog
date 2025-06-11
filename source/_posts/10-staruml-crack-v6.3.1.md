@@ -149,6 +149,14 @@ asar pack app app.asar
 
 ![](/res/img/post/10-staruml-crack-v6.3.1/4.png)
 
+# 插件推荐
+
+## Set Pixel Ratio
+
+![](/res/img/post/10-staruml-crack-v6.3.1/5.png)
+
+![](/res/img/post/10-staruml-crack-v6.3.1/6.png)
+
 <br>
 <br>
 

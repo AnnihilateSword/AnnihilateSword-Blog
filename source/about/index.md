@@ -4,11 +4,16 @@ date: 2024-02-20 01:23:14
 type: "about"
 ---
 
+【关于我】
 **Gameplay Programmer**
 电子邮件：743144825@qq.com
+B站：AnnihilateSword
+知乎：AnnihilateSword
 
 <a href="http://annihilatesword.com/game/">👉[My Game Time] 😊</a>
 
+<br>
+<br>
 <br>
 <br>
 

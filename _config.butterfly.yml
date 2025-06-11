@@ -18,8 +18,8 @@ nav:
 
 menu:
   Home: / || fas fa-home
-  # 👉PlayGame!!!: /game/ || fas fa-gamepad
-  ✨🔥PlayGame👍: /game/
+  # 😊PlayGame!!!: /game/ || fas fa-gamepad
+  😊🔥PlayGame✨: /game/
   Archives: /archives/ || fas fa-archive
   Tags: /tags/ || fas fa-tags
   # Categories: /categories/ || fas fa-folder-open
@@ -304,7 +304,7 @@ aside:
   card_announcement:
     enable: true
     # content: 🗡️幸得识君桃花面 从此阡陌多暖春<br>🗡️天道无常 事在人为<br>🗡️临渊慕鱼 不如退而结网<br>🗡️东隅已逝 桑榆非晚
-    content: 水中有明月，碎碎圆圆。💖<br>心上有良人，平平安安。💖
+    content: 🗡️心中一点浩然气，何处不是倒悬山。<br>🌙水中有明月，碎碎圆圆~<br>🌙心上有良人，平平安安~
   card_recent_post:
     enable: true
     # If set 0 will show all
